@@ -420,7 +420,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .ambassadors { padding-block: 120px 110px; }
 .amb__head { display: flex; align-items: flex-start; justify-content: space-between; gap: 40px; }
 .amb__lead {
-  width: 50vw; /* half the screen width on desktop; never wider than its row */
+  width: min(50vw, 720px); /* half the screen; above 1440px, half the 1440px page frame */
   max-width: 100%;
   font-family: var(--display);
   font-size: 24px;
