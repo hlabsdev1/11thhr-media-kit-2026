@@ -704,7 +704,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   .media__img--waterfront { --rise: 6; }
   .media__img--sailor     { --rise: 12; }
   .media__img--yacht      { --rise: 9; }
-  .media__img--ocean      { --rise: 16; } /* moves with the copy so it never drifts over the text */
+  .media__img--ocean      { --rise: 14; }
   .media__img--outdoors   { --rise: 22; }
   .media__img--racing     { --rise: 32; }
   .media__img--mountains  { --rise: 26; }
@@ -716,7 +716,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   .media__stage {
     aspect-ratio: auto;
     max-height: none;
-    padding: 48vw var(--gutter) 46vw;
+    padding: 62vw var(--gutter) 60vw;
     overflow-x: clip; /* edge tiles must not cause sideways scrolling; vertical stays visible so nothing is cropped */
   }
   .media__content {
@@ -724,16 +724,16 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
     left: auto;
     top: auto;
     width: auto;
-    max-width: 480px; /* on tablets, leaves room beside the copy for the edge tiles */
-    margin-inline: auto;
+    max-width: none;
   }
-  .media__img--waterfront { left: 40%;  top: 0;     width: 24vw; }
-  .media__img--sailor     { left: 7%;   top: 10vw;  width: 28vw; }
-  .media__img--yacht      { left: 65%;  top: 15vw;  width: 34vw; }
-  .media__img--ocean      { left: -3%;  top: 41vw;  width: 19vw; }
-  .media__img--outdoors   { left: 81%;  top: auto;  bottom: 28vw; width: 20vw; }
-  .media__img--racing     { left: 6%;   top: auto;  bottom: 14vw; width: 38vw; }
-  .media__img--mountains  { left: 49%;  top: auto;  bottom: 0;    width: 32vw; }
+  /* all tiles stay at least 7vw clear of the copy (about 26px on a phone) */
+  .media__img--sailor     { left: 5%;   top: 4vw;   width: 28vw; }
+  .media__img--waterfront { left: 42%;  top: 0;     width: 22vw; }
+  .media__img--yacht      { left: 66%;  top: 16vw;  width: 34vw; }
+  .media__img--ocean      { left: -3%;  top: 36vw;  width: 18vw; }
+  .media__img--outdoors   { left: 80%;  top: auto;  bottom: 32vw; width: 20vw; }
+  .media__img--racing     { left: 5%;   top: auto;  bottom: 28vw; width: 38vw; }
+  .media__img--mountains  { left: 50%;  top: auto;  bottom: 0;    width: 32vw; }
 
   .ambassadors { padding-block: 72px; }
   .amb__head { flex-direction: column; align-items: flex-start; gap: 20px; }
