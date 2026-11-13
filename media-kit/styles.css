@@ -693,27 +693,32 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   .faq__body { max-width: none; }
 
   .media { padding-block: 56px; }
+  /* Phones and portrait tablets: the copy sits in the middle and the tiles are
+     scattered above and below it like on desktop (mixed sizes and shapes,
+     loose offsets, two bleeding off the edges). Sizes are in vw so the
+     arrangement scales with the screen. */
   .media__stage {
     aspect-ratio: auto;
     max-height: none;
-    padding-inline: var(--gutter);
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
-    align-items: center;
+    padding: 72vw var(--gutter) 74vw;
+    overflow: hidden; /* tiles that bleed off the edges must not cause sideways scrolling */
+    overflow: clip;
   }
-  .media__img { position: static; width: auto; aspect-ratio: 1; }
-  .media__img--ocean { display: none; }
-  .media__img--racing, .media__img--mountains, .media__img--outdoors { order: 3; }
   .media__content {
-    position: static;
+    position: relative;
+    left: auto;
+    top: auto;
     transform: none;
-    grid-column: 1 / -1;
-    order: 2;
     width: auto;
     max-width: none;
-    padding-block: 36px;
   }
+  .media__img--waterfront { left: 40%;  top: 2vw;   width: 26vw; }
+  .media__img--sailor     { left: 6%;   top: 15vw;  width: 30vw; }
+  .media__img--yacht      { left: 66%;  top: 22vw;  width: 36vw; }
+  .media__img--ocean      { left: -3%;  top: 46vw;  width: 20vw; }
+  .media__img--outdoors   { left: 80%;  top: auto;  bottom: 44vw; width: 22vw; }
+  .media__img--racing     { left: 7%;   top: auto;  bottom: 20vw; width: 40vw; }
+  .media__img--mountains  { left: 55%;  top: auto;  bottom: 3vw;  width: 36vw; }
 
   .ambassadors { padding-block: 72px; }
   .amb__head { flex-direction: column; align-items: flex-start; gap: 20px; }
