@@ -573,10 +573,13 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 
 /* ---------- 11 Contacts ---------- */
 
-.contacts { padding-block: 60px var(--inset); }
+/* Like the hero: the photo card fills the screen on every device, with the
+   same 10px white inset on all four sides */
+.contacts { padding-block: var(--inset); }
+.contacts > .bleed { max-width: none; }
 .contacts__card {
   position: relative;
-  min-height: clamp(520px, 52.7vw, 760px);
+  min-height: calc(var(--slide-l, 100vh) - 2 * var(--inset));
   border-radius: 25px;
   overflow: hidden;
   isolation: isolate;
@@ -699,7 +702,6 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   .partners { padding-block: 32px; }
   .partners__card { padding-top: 48px; }
   .partners__panel { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 32px; }
-  .contacts { padding-top: 32px; }
 }
 
 @media (max-width: 520px) {
