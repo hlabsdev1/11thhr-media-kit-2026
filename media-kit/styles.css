@@ -94,8 +94,10 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
    the browser itself holds it in place while the previous slide scrolls off
    (no JS positioning, so no shake). JS only sets the darkening
    (--slide-in: 1 = fully covered) and the shadow of the outgoing slide (--slide-out). */
+/* 100vh, not svh: on iPhone Safari vh is the full screen with the toolbars
+   collapsed, so a slide never ends short of the screen and lets the next,
+   darkened slide show through underneath. */
 .has-slides { --slide-l: 100vh; }
-@supports (height: 100svh) { .has-slides { --slide-l: 100svh; } }
 .has-slides .slide {
   min-height: var(--slide-l);
   display: flex;
@@ -271,7 +273,6 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
    (--lead-h, set by script.js), so About starts lifting off the moment the
    paragraph's hold ends. */
 .about { padding-block: 110px calc(50vh - var(--lead-h, 200px) / 2); }
-@supports (height: 100svh) { .about { padding-bottom: calc(50svh - var(--lead-h, 200px) / 2); } }
 .about__title { text-align: center; }
 .about__cards {
   display: grid;
@@ -291,7 +292,6 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   margin-top: max(200px, 40vh);
   min-height: calc(var(--lead-h, 0px) + var(--lead-hold));
 }
-@supports (height: 100svh) { .about__lead-stage { --lead-hold: 45svh; } }
 .about__lead {
   position: sticky;
   top: calc(50vh - var(--lead-h, 200px) / 2);
@@ -302,7 +302,6 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   line-height: 1.19;
   color: var(--black);
 }
-@supports (height: 100svh) { .about__lead { top: calc(50svh - var(--lead-h, 200px) / 2); } }
 .about__lead strong { font-weight: 500; }
 /* line-by-line fade-up: script.js sets each word's opacity and lift by line */
 .js .about__lead .w { display: inline-block; will-change: opacity, transform; }
