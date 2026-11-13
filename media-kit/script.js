@@ -128,8 +128,23 @@
         }
       });
     })(el);
-    return { el: el, words: words, lit: -1, section: el.closest("section") };
+    return { el: el, words: words, lines: null, width: 0, h: 0, section: el.closest("section"), stage: el.parentElement };
   });
+
+  // group a paragraph's words into its visual lines (re-run when the width or fonts change)
+  function measureLines(lead) {
+    var lines = [], lastTop = null;
+    lead.words.forEach(function (w) {
+      var t = w.offsetTop;
+      if (lastTop === null || Math.abs(t - lastTop) > 4) { lines.push([]); lastTop = t; }
+      lines[lines.length - 1].push(w);
+    });
+    lead.lines = lines.map(function (ws) { return { words: ws, v: -1 }; });
+    lead.width = lead.el.offsetWidth;
+  }
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(function () { leads.forEach(function (l) { l.lines = null; }); onScroll(); });
+  }
 
   var parallaxEls = $$("[data-parallax]").map(function (el) {
     return { el: el, speed: parseFloat(el.getAttribute("data-parallax")) || 0, frame: el.classList.contains("media-frame") };
@@ -167,30 +182,30 @@
     }
 
     leads.forEach(function (lead) {
-      var r = lead.el.getBoundingClientRect();
-      var mid = r.top + r.height / 2;
+      // the paragraph's height drives its sticky position and the space below it (CSS --lead-h)
+      var h = lead.el.offsetHeight;
+      if (h !== lead.h && lead.section) { lead.h = h; lead.section.style.setProperty("--lead-h", h + "px"); }
+      if (reduceMotion) return;
+      if (!lead.lines || lead.el.offsetWidth !== lead.width) measureLines(lead);
 
-      // fade in as the block rises from the bottom edge to 70% of the viewport;
-      // fade out as the bottom of its section approaches the bottom edge, so the
-      // copy is gone just before the next slide starts to be uncovered
-      if (!reduceMotion) {
-        var fadeIn = clamp((vh - r.top) / (vh * 0.3), 0, 1);
-        var sectionBottom = lead.section ? lead.section.getBoundingClientRect().bottom : Infinity;
-        var fadeOut = clamp((sectionBottom - vh) / (vh * 0.3), 0, 1);
-        var o = Math.min(fadeIn, fadeOut);
-        var y = (1 - fadeIn) * 40 - (1 - fadeOut) * 40;
-        lead.el.style.setProperty("--lead-o", o.toFixed(3));
-        lead.el.style.setProperty("--lead-y", y.toFixed(1) + "px");
-      }
-
-      // text reveal: words light up as the block's centre travels from 85% to 55% of the viewport
-      var start = vh * 0.85;
-      var end = vh * 0.55;
-      var p = reduceMotion ? 1 : clamp((start - mid) / (start - end), 0, 1);
-      var lit = Math.round(p * lead.words.length);
-      if (lit === lead.lit) return;
-      lead.lit = lit;
-      lead.words.forEach(function (w, i) { w.classList.toggle("is-lit", i < lit); });
+      // line-by-line fade-up: runs while the stage rises from 90% of the screen
+      // until a little after the paragraph has settled in the middle
+      var stageTop = lead.stage.getBoundingClientRect().top;
+      var settled = vh / 2 - h / 2;
+      var p = clamp((vh * 0.9 - stageTop) / (vh * 0.9 - settled + vh * 0.1), 0, 1);
+      var n = lead.lines.length;
+      lead.lines.forEach(function (line, i) {
+        var a = n > 1 ? (i / (n - 1)) * 0.55 : 0;     // when this line starts
+        var v = clamp((p - a) / 0.45, 0, 1);          // 0 hidden → 1 shown
+        v = Math.round(v * 100) / 100;
+        if (v === line.v) return;
+        line.v = v;
+        var ease = 1 - Math.pow(1 - v, 3);
+        line.words.forEach(function (w) {
+          w.style.opacity = ease.toFixed(3);
+          w.style.transform = "translateY(" + ((1 - ease) * 24).toFixed(1) + "px)";
+        });
+      });
     });
 
     // parallax

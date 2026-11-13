@@ -267,7 +267,11 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 
 /* ---------- 02 About ---------- */
 
-.about { padding-block: 110px max(320px, 90vh); }
+/* Space below the paragraph is half a screen minus half the paragraph
+   (--lead-h, set by script.js), so About starts lifting off the moment the
+   paragraph's hold ends. */
+.about { padding-block: 110px calc(50vh - var(--lead-h, 200px) / 2); }
+@supports (height: 100svh) { .about { padding-bottom: calc(50svh - var(--lead-h, 200px) / 2); } }
 .about__title { text-align: center; }
 .about__cards {
   display: grid;
@@ -280,23 +284,28 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .about__text { max-width: 415px; }
 .about__text h3 { font-size: 20px; line-height: 32px; font-weight: 500; letter-spacing: 0.4px; }
 .about__text p { padding-top: 1.896px; }
+/* The paragraph sits in a stage taller than itself by --lead-hold; it sticks in
+   the middle of the screen for that distance, then scrolls away with About. */
+.about__lead-stage {
+  --lead-hold: 45vh;
+  margin-top: max(200px, 40vh);
+  min-height: calc(var(--lead-h, 0px) + var(--lead-hold));
+}
+@supports (height: 100svh) { .about__lead-stage { --lead-hold: 45svh; } }
 .about__lead {
+  position: sticky;
+  top: calc(50vh - var(--lead-h, 200px) / 2);
   max-width: 1010px;
-  margin: max(240px, 45vh) auto 0;
+  margin: 0 auto;
   text-align: center;
   font-size: clamp(24px, 2.64vw, 38px);
   line-height: 1.19;
   color: var(--black);
 }
+@supports (height: 100svh) { .about__lead { top: calc(50svh - var(--lead-h, 200px) / 2); } }
 .about__lead strong { font-weight: 500; }
-/* opacity and lift are driven by scroll in script.js (--lead-o, --lead-y) */
-.js .about__lead {
-  opacity: var(--lead-o, 1);
-  transform: translateY(var(--lead-y, 0px));
-  will-change: opacity, transform;
-}
-.js .about__lead .w { color: var(--muted); transition: color 0.35s linear; }
-.js .about__lead .w.is-lit { color: var(--black); }
+/* line-by-line fade-up: script.js sets each word's opacity and lift by line */
+.js .about__lead .w { display: inline-block; will-change: opacity, transform; }
 
 /* ---------- Media frame (image with reveal + parallax) ---------- */
 
@@ -644,9 +653,9 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   :root { --gutter: 24px; --radius: 18px; }
   .num { display: none; }
   .hero__intro { align-self: flex-start; }
-  .about { padding-block: 72px max(160px, 45vh); }
+  .about { padding-top: 72px; }
   .about__cards { grid-template-columns: 1fr; gap: 40px; margin-top: 40px; }
-  .about__lead { margin-top: max(160px, 35vh); }
+  .about__lead-stage { margin-top: max(140px, 30vh); }
   .split { padding-block: 32px; }
   .split__grid { grid-template-columns: 1fr; gap: 32px; }
   .split__content { padding: 0 calc(var(--gutter) - var(--inset)) 16px; }
@@ -698,6 +707,5 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   *, *::before, *::after { transition-duration: 0.01ms !important; transition-delay: 0s !important; }
   .js [data-reveal], .js [data-reveal="pop"] { opacity: 1; transform: none; scale: 1; clip-path: none; }
   .js [data-reveal="image"] img { scale: 1; translate: none; }
-  .js .about__lead .w { color: var(--black); }
-  .js .about__lead { opacity: 1; transform: none; }
+  .js .about__lead .w { opacity: 1 !important; transform: none !important; }
 }
