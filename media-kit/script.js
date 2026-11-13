@@ -250,6 +250,22 @@
         });
       });
     });
+
+    // The FAQ is placed by its height with every question closed (CSS --faq-h),
+    // so opening an answer only pushes content downwards and the title stays put.
+    var body = $(".faq__body");
+    var section = body && body.closest("section");
+    function measure() {
+      var openH = 0;
+      $$(".faq__a", body).forEach(function (a) { openH += a.offsetHeight; });
+      section.style.setProperty("--faq-h", (body.offsetHeight - openH) + "px");
+    }
+    if (section) {
+      measure();
+      window.addEventListener("resize", measure);
+      window.addEventListener("load", measure);
+      if (document.fonts && document.fonts.ready) document.fonts.ready.then(measure);
+    }
   })();
 
   /* ---------- Ambassador slider ---------- */

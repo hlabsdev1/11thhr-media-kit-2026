@@ -356,7 +356,14 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
     min-height: calc(var(--slide-l, 100vh) - 2 * var(--inset));
     border-radius: 25px;
   }
-  :is(.pillar, .faq) .split__content { align-self: center; }
+  .pillar .split__content { align-self: center; }
+  /* FAQ: placed where it would be centred with all questions closed
+     (--faq-h from script.js), then anchored at the top, so opening an answer
+     grows it downwards instead of pushing the title up */
+  .faq .split__content {
+    align-self: start;
+    padding-top: max(40px, calc(50vh - var(--faq-h, 600px) / 2 - var(--inset)));
+  }
 }
 
 /* ---------- 07 Media assets ---------- */
