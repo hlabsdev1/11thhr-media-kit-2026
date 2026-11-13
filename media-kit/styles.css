@@ -648,11 +648,11 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 }
 .js [data-reveal].is-in { opacity: 1; transform: none; }
 
-/* Ken Burns: the photo is always visible in its frame; when it comes into view
-   it slowly settles from a slight zoom while drifting a little toward its
-   focal point (--kb-origin). No wipe, so it doesn't compete with the slide change. */
-.js [data-reveal="image"] { opacity: 1; transform: none; }
-.js [data-reveal="image"] img {
+/* Ken Burns (any photo frame marked data-kb): the photo is always visible in
+   its frame; each time it comes into view it slowly settles from a slight zoom
+   while drifting a little toward its focal point (--kb-origin). script.js adds
+   .kb-on on entry and resets it once the photo has left the screen. */
+.js [data-kb] img {
   scale: 1.14;
   translate: var(--kb-x, -1.5%) var(--kb-y, 1%);
   transform-origin: var(--kb-origin, 50% 50%);
@@ -660,7 +660,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   transition-delay: var(--d, 0s);
   will-change: scale, translate;
 }
-.js [data-reveal="image"].is-in img { scale: 1.02; translate: 0 0; }
+.js [data-kb].kb-on img { scale: 1.02; translate: 0 0; }
 .pillar--maritime  { --kb-origin: 35% 45%; --kb-x: -1.5%; --kb-y: 1%; }
 .pillar--inclusive { --kb-origin: 60% 40%; --kb-x: 1.5%;  --kb-y: 1%; }
 .pillar--coastal   { --kb-origin: 40% 60%; --kb-x: -1%;   --kb-y: -1.5%; }
@@ -794,6 +794,6 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition-duration: 0.01ms !important; transition-delay: 0s !important; }
   .js [data-reveal], .js [data-reveal="pop"] { opacity: 1; transform: none; scale: 1; clip-path: none; }
-  .js [data-reveal="image"] img { scale: 1; translate: none; }
+  .js [data-kb] img { scale: 1; translate: none; }
   .js .about__lead .w { opacity: 1 !important; transform: none !important; }
 }

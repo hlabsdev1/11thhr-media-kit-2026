@@ -82,19 +82,9 @@
   // so their entrance animation isn't spent while hidden under the previous slide.
   var revealPending = [];
   var revealIO = null;
-  function isPhoto(el) { return el.getAttribute("data-reveal") === "image"; }
   function revealNow(el) {
     el.classList.add("is-in");
-    // photos stay observed so their Ken Burns zoom can replay on every visit
-    if (revealIO && !isPhoto(el)) revealIO.unobserve(el);
-  }
-  // put a photo back to its zoomed-in start, instantly, once it is fully out of view
-  function resetPhoto(el) {
-    if (!el.classList.contains("is-in")) return;
-    var img = el.querySelector("img");
-    if (img) img.style.transition = "none";
-    el.classList.remove("is-in");
-    if (img) { void img.offsetWidth; img.style.transition = ""; }
+    if (revealIO) revealIO.unobserve(el);
   }
 
   (function reveals() {
@@ -112,13 +102,38 @@
       });
     }, { threshold: 0.12, rootMargin: "0px 0px -6% 0px" });
     items.forEach(function (el) { revealIO.observe(el); });
+  })();
 
-    // Ken Burns replay: when a photo has left the screen completely, reset it,
-    // so the zoom plays again next time it scrolls into view
+  /* ---------- Ken Burns (photos marked data-kb) ---------- */
+  // .kb-on starts the slow zoom when a photo comes into view (waiting, like the
+  // reveals, until a covered slide is half uncovered). Once the photo has left
+  // the screen completely it snaps back, unanimated, to its zoomed-in start, so
+  // the zoom plays again on every visit.
+
+  var kbPending = [];
+  function kbStart(el) { el.classList.add("kb-on"); }
+  function kbReset(el) {
+    if (!el.classList.contains("kb-on")) return;
+    var img = el.querySelector("img");
+    if (img) img.style.transition = "none";
+    el.classList.remove("kb-on");
+    if (img) { void img.offsetWidth; img.style.transition = ""; }
+  }
+  (function kenBurns() {
+    var photos = $$("[data-kb]");
+    if (!photos.length || !("IntersectionObserver" in window) || reduceMotion) return;
+    var enterIO = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        var i = kbPending.indexOf(e.target);
+        if (!e.isIntersecting) { if (i > -1) kbPending.splice(i, 1); return; }
+        if (slideProgress(e.target) >= 0.5) kbStart(e.target);
+        else if (i === -1) kbPending.push(e.target);
+      });
+    }, { threshold: 0.12 });
     var leaveIO = new IntersectionObserver(function (entries) {
-      entries.forEach(function (e) { if (!e.isIntersecting) resetPhoto(e.target); });
+      entries.forEach(function (e) { if (!e.isIntersecting) kbReset(e.target); });
     }, { threshold: 0 });
-    items.filter(isPhoto).forEach(function (el) { leaveIO.observe(el); });
+    photos.forEach(function (el) { enterIO.observe(el); leaveIO.observe(el); });
   })();
 
   /* ---------- Scroll-driven work (text reveal + parallax) ---------- */
@@ -195,6 +210,9 @@
       });
       for (var k = revealPending.length - 1; k >= 0; k--) {
         if (slideProgress(revealPending[k]) >= 0.5) revealNow(revealPending.splice(k, 1)[0]);
+      }
+      for (var m = kbPending.length - 1; m >= 0; m--) {
+        if (slideProgress(kbPending[m]) >= 0.5) kbStart(kbPending.splice(m, 1)[0]);
       }
     }
 
