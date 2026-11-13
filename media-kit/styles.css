@@ -282,7 +282,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 }
 .about__card { display: flex; flex-direction: column; gap: 17px; }
 .about__card .media-frame { aspect-ratio: 451 / 248.4; --r: 18px; border-radius: 18px; }
-.about__text { max-width: 415px; }
+.about__text { max-width: 455px; padding: 20px; } /* 415px of text + 20px padding each side */
 .about__text h3 { font-size: 20px; line-height: 32px; font-weight: 500; letter-spacing: 0.4px; }
 .about__text p { padding-top: 1.896px; }
 /* The paragraph sits in a stage taller than itself by --lead-hold; it sticks in
