@@ -531,6 +531,20 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 }
 .partners__col h3 { min-height: 42px; }
 .partners__col ul { margin-top: 16.76px; }
+/* Inclusive Ocean Opportunity: spans two of the five tracks and shows its long
+   list in two halves side by side (same gap as the panel, so the halves line
+   up with the tracks) */
+.partners__col--wide { grid-column: span 2; }
+.partners__lists { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 17px; }
+
+/* Square screens and landscape tablets (801–1100px): four columns, and the
+   Inclusive list becomes one continuous list */
+@media (max-width: 1100px) {
+  .partners__panel { grid-template-columns: repeat(4, minmax(0, 1fr)); row-gap: 36px; }
+  .partners__col--wide { grid-column: auto; }
+  .partners__lists { display: block; }
+  .partners__lists ul + ul { margin-top: 0; }
+}
 
 /* ---------- 10 FAQ ---------- */
 
@@ -679,9 +693,6 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 @media (max-width: 1100px) {
   .split__content { padding-left: 48px; }
   .amb__slider { --per: 3; --gap: 28px; }
-  .partners__panel { grid-template-columns: repeat(3, minmax(0, 1fr)); row-gap: 36px; }
-  .partners__col--cont h3 { display: none; }
-  .partners__col--cont ul { margin-top: 0; }
 }
 
 @media (max-width: 800px) {
