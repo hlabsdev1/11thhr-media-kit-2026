@@ -427,6 +427,12 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   line-height: 31px;
   letter-spacing: var(--display-tracking);
 }
+/* 4-card layout (above 1100px): the intro is exactly two cards wide
+   (two cards + one 42px gap = half the row minus half a gap), so it lines
+   up over cards 3 and 4 */
+@media (min-width: 1101px) {
+  .amb__lead { width: calc((100% - 42px) / 2); }
+}
 .amb__slider { --per: 4; --gap: 42px; margin-top: 70px; }
 .amb__viewport { overflow: hidden; touch-action: pan-y; }
 .amb__track {
