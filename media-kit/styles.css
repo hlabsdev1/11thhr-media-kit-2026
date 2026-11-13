@@ -418,7 +418,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 /* ---------- 08 Ambassadors ---------- */
 
 .ambassadors { padding-block: 120px 110px; }
-.amb__head { display: flex; align-items: center; justify-content: space-between; gap: 40px; }
+.amb__head { display: flex; align-items: flex-start; justify-content: space-between; gap: 40px; }
 .amb__lead {
   width: 50vw; /* half the screen width on desktop; never wider than its row */
   max-width: 100%;
