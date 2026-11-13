@@ -261,6 +261,55 @@
   window.addEventListener("load", onScroll); // section heights settle once fonts and images are in
   update();
 
+  /* ---------- Media Assets: tiles keep their distance from the pointer ---------- */
+  // Each tile near the cursor (or a finger touching the screen) is pushed gently
+  // away from it, more the closer it is, and eases back when the pointer leaves.
+  // Written to --mx/--my, which the tiles' transform adds to their parallax.
+
+  (function mediaRepel() {
+    var stage = $(".media__stage");
+    if (!stage || reduceMotion) return;
+    var tiles = $$(".media__img", stage).map(function (el) { return { el: el, x: 0, y: 0, tx: 0, ty: 0 }; });
+    var REACH = 220;   // px around a tile's edge in which the pointer has an effect
+    var PUSH = 26;     // max offset in px
+    var pointer = null, running = false;
+
+    function frame() {
+      var moving = false;
+      tiles.forEach(function (t) {
+        t.tx = 0; t.ty = 0;
+        if (pointer) {
+          var r = t.el.getBoundingClientRect();
+          var cx = r.left + r.width / 2 - t.x, cy = r.top + r.height / 2 - t.y; // centre without our own offset
+          var dx = cx - pointer.x, dy = cy - pointer.y;
+          var dist = Math.sqrt(dx * dx + dy * dy) || 1;
+          var edge = Math.max(0, dist - Math.min(r.width, r.height) / 2); // distance to the tile, roughly
+          var k = clamp(1 - edge / REACH, 0, 1);
+          k = k * k * (3 - 2 * k);           // smooth falloff
+          t.tx = (dx / dist) * PUSH * k;
+          t.ty = (dy / dist) * PUSH * k;
+        }
+        t.x += (t.tx - t.x) * 0.12;          // ease toward the target
+        t.y += (t.ty - t.y) * 0.12;
+        if (Math.abs(t.tx - t.x) > 0.05 || Math.abs(t.ty - t.y) > 0.05) moving = true;
+        t.el.style.setProperty("--mx", t.x.toFixed(2) + "px");
+        t.el.style.setProperty("--my", t.y.toFixed(2) + "px");
+      });
+      if (moving || pointer) requestAnimationFrame(frame); else running = false;
+    }
+    function kick() { if (!running) { running = true; requestAnimationFrame(frame); } }
+    function set(e) { pointer = { x: e.clientX, y: e.clientY }; kick(); }
+    function release() { pointer = null; kick(); }
+
+    var section = stage.closest("section");
+    section.addEventListener("pointermove", set);
+    section.addEventListener("pointerdown", set);
+    section.addEventListener("pointerleave", release);
+    // a tap pushes the tiles away, then they settle back
+    section.addEventListener("pointerup", function (e) { if (e.pointerType !== "mouse") setTimeout(release, 600); });
+    section.addEventListener("pointercancel", release);
+  })();
+
   /* ---------- FAQ accordion ---------- */
 
   (function faq() {
