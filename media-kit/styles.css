@@ -38,7 +38,7 @@
      below makes the Text Pro fallback match it; set to 0 when the real
      Display Pro webfont is added. */
   --display: "Neue Haas Grotesk Display Pro", "Neue Haas Grotesk Text Pro", "Helvetica Neue", Helvetica, Arial, sans-serif;
-  --display-tracking: -0.05em;
+  --display-tracking: 0; /* 0%, as requested; was -0.05em to imitate Display Pro */
 
   --container: 1440px;
   --gutter: 50px;   /* content inset inside the container */
