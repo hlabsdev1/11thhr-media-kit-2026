@@ -414,6 +414,10 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .media__content .h2 { color: #000; }
 .media__copy { display: flex; flex-direction: column; gap: 14px; }
 .media__content .cta { padding: 10px 20px; }
+@keyframes media-rise {
+  from { translate: 0 calc(var(--rise, 20) * 1vh); }
+  to   { translate: 0 0; }
+}
 
 /* ---------- 08 Ambassadors ---------- */
 
@@ -694,13 +698,24 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 
   /* Taller than one screen, so it keeps scrolling after it has been revealed */
   .media { padding-block: 22vh 18vh; }
-  /* Rise in from below while the slide is uncovered: --slide-in goes from 1
-     (covered) to 0 (uncovered), set by script.js. The copy and each tile start
-     lower by a different amount (--rise, in vh), so they settle at slightly
-     different speeds, like the desktop parallax. Tiles above the copy rise
-     less than it and tiles below rise more, so nothing runs into the text. */
-  .media__content { transform: translate3d(0, calc(var(--slide-in, 0) * 16vh), 0); will-change: transform; }
-  .media__img { --py: calc(var(--slide-in, 0) * var(--rise, 20) * 1vh); }
+  /* Rise in from below while the slide is uncovered. The browser drives it
+     from the scroll position (scroll-driven animation on the slide's wrapper,
+     --media-in), so it stays in step with the scroll with no stutter. It runs
+     over the one screen of scrolling during which the slide is held and
+     uncovered. The copy and each tile start lower by a different amount
+     (--rise, in vh), so they settle at slightly different speeds; tiles above
+     the copy rise less than it and tiles below more, so nothing runs into the
+     text. Browsers without scroll-driven animations show it without motion. */
+  @supports (animation-timeline: view()) {
+    .has-slides .slide-wrap:has(> .media) { view-timeline: --media-in block; }
+    .has-slides .media__content,
+    .has-slides .media__img {
+      animation: media-rise linear both;
+      animation-timeline: --media-in;
+      animation-range: cover 100vh cover 200vh;
+    }
+    .has-slides .media__content { --rise: 16; }
+  }
   .media__img--waterfront { --rise: 6; }
   .media__img--sailor     { --rise: 12; }
   .media__img--yacht      { --rise: 9; }
@@ -723,8 +738,10 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
     position: relative;
     left: auto;
     top: auto;
+    transform: none; /* undo the desktop centring offset */
     width: auto;
-    max-width: none;
+    max-width: 402px; /* same text width as on desktop */
+    margin-inline: auto;
   }
   /* all tiles stay at least 7vw clear of the copy (about 26px on a phone) */
   .media__img--sailor     { left: 5%;   top: 4vw;   width: 28vw; }
