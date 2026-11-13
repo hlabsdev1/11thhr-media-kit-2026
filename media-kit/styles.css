@@ -692,17 +692,17 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   .split__content { padding: 0 calc(var(--gutter) - var(--inset)) 16px; }
   .faq__body { max-width: none; }
 
-  .media { padding-block: 56px; }
+  .media { padding-block: 80px; }
   /* Phones and portrait tablets: the copy sits in the middle and the tiles are
      scattered above and below it like on desktop (mixed sizes and shapes,
-     loose offsets, two bleeding off the edges). Sizes are in vw so the
-     arrangement scales with the screen. */
+     loose offsets, two bleeding off the edges and tucked in beside the title
+     and the button). Sizes are in vw so the arrangement scales with the
+     screen. The section is as tall as it needs to be, not one screen. */
   .media__stage {
     aspect-ratio: auto;
     max-height: none;
-    padding: 72vw var(--gutter) 74vw;
-    overflow: hidden; /* tiles that bleed off the edges must not cause sideways scrolling */
-    overflow: clip;
+    padding: 48vw var(--gutter) 46vw;
+    overflow-x: clip; /* edge tiles must not cause sideways scrolling; vertical stays visible so nothing is cropped */
   }
   .media__content {
     position: relative;
@@ -710,15 +710,16 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
     top: auto;
     transform: none;
     width: auto;
-    max-width: none;
+    max-width: 480px; /* on tablets, leaves room beside the copy for the edge tiles */
+    margin-inline: auto;
   }
-  .media__img--waterfront { left: 40%;  top: 2vw;   width: 26vw; }
-  .media__img--sailor     { left: 6%;   top: 15vw;  width: 30vw; }
-  .media__img--yacht      { left: 66%;  top: 22vw;  width: 36vw; }
-  .media__img--ocean      { left: -3%;  top: 46vw;  width: 20vw; }
-  .media__img--outdoors   { left: 80%;  top: auto;  bottom: 44vw; width: 22vw; }
-  .media__img--racing     { left: 7%;   top: auto;  bottom: 20vw; width: 40vw; }
-  .media__img--mountains  { left: 55%;  top: auto;  bottom: 3vw;  width: 36vw; }
+  .media__img--waterfront { left: 40%;  top: 0;     width: 24vw; }
+  .media__img--sailor     { left: 7%;   top: 10vw;  width: 28vw; }
+  .media__img--yacht      { left: 65%;  top: 15vw;  width: 34vw; }
+  .media__img--ocean      { left: -3%;  top: 41vw;  width: 19vw; }
+  .media__img--outdoors   { left: 81%;  top: auto;  bottom: 28vw; width: 20vw; }
+  .media__img--racing     { left: 6%;   top: auto;  bottom: 14vw; width: 38vw; }
+  .media__img--mountains  { left: 49%;  top: auto;  bottom: 0;    width: 32vw; }
 
   .ambassadors { padding-block: 72px; }
   .amb__head { flex-direction: column; align-items: flex-start; gap: 20px; }
