@@ -341,9 +341,19 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .split__content { padding-left: 72px; padding-right: calc(var(--gutter) - var(--inset)); }
 .pillar__body { display: flex; flex-direction: column; align-items: flex-start; gap: 30px; }
 .pillar__text { display: flex; flex-direction: column; gap: 10px; }
-/* text uses the column's width (no fixed per-section widths forcing line
-   breaks); the cap only keeps lines readable on very wide screens */
+/* Side by side (>800px): the original layout, with headings on 3 lines and
+   copy kept to the design's narrow measure. Stacked (≤800px): no forced
+   breaks; the text fills its column, capped for readability. */
 .pillar__body { max-width: 560px; }
+@media (min-width: 801px) {
+  .pillar--maritime .pillar__body { max-width: 284px; }
+  .pillar--inclusive .pillar__body { max-width: 315px; }
+  .pillar--coastal .pillar__body { max-width: 266px; }
+  .pillar--community .pillar__body { max-width: 335px; }
+}
+@media (max-width: 800px) {
+  .pillar h2 br { display: none; }
+}
 
 /* Desktop and tablet: the photo (focus areas and FAQ) fills the slide's full height and runs to the
    left edge, keeping the hero card's 10px white inset on top, bottom and left */
