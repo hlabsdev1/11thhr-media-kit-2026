@@ -86,6 +86,45 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 
 .section { position: relative; }
 
+/* ---------- Slide change (02 About → 11 Contacts) ----------
+   script.js adds .has-slides to <html>, .slide to each section from About on, and
+   wraps every slide after About in a .slide-wrap. Each slide is at least one
+   screen (--slide-l) tall and sits on white. The wrapper starts one screen
+   early, underneath the previous slide, and the slide inside it is sticky, so
+   the browser itself holds it in place while the previous slide scrolls off
+   (no JS positioning, so no shake). JS only sets the darkening
+   (--slide-in: 1 = fully covered) and the shadow of the outgoing slide (--slide-out). */
+.has-slides { --slide-l: 100vh; }
+@supports (height: 100svh) { .has-slides { --slide-l: 100svh; } }
+.has-slides .slide {
+  min-height: var(--slide-l);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: var(--white);
+  box-shadow: 0 30px 60px -10px rgba(0, 0, 0, calc(0.35 * var(--slide-out, 0)));
+}
+/* in a flex column, auto side margins would shrink a block to its content;
+   keep every slide's content full width as in normal flow */
+.has-slides .slide > :not(.num) { width: 100%; }
+.has-slides .slide-wrap { margin-top: calc(-1 * var(--slide-l)); }
+/* room for the sticky slide to be held in (padding wouldn't count: sticky
+   only moves within its parent's content box) */
+.has-slides .slide-wrap::after { content: ""; display: block; height: var(--slide-l); }
+.has-slides .slide-wrap > .slide {
+  position: sticky;
+  top: 0;
+}
+.has-slides .slide::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  background: #000;
+  opacity: calc(0.5 * var(--slide-in, 0));
+  pointer-events: none;
+}
+
 /* ---------- Text styles (Figma) ---------- */
 
 .h2 { font-size: clamp(36px, 3.48vw, 50px); line-height: 1; font-weight: 400; }
@@ -107,25 +146,48 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .cta {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 24px; /* same in both states, so nothing moves on hover */
   padding: 10px 14px;
   border-radius: 40px;
   background: var(--grey);
   color: #000;
   white-space: nowrap;
-  transition: background-color 0.3s var(--ease), color 0.3s var(--ease);
+  transition: background-color 0.35s var(--ease);
 }
-.cta img { width: 21.714px; height: 20px; transition: transform 0.3s var(--ease), filter 0.3s var(--ease); }
-.cta:hover { background: var(--black); color: var(--white); }
-.cta:hover img { transform: translateX(3px); filter: invert(1); }
+/* the arrow sits in a circle that fills with the section's colour on hover
+   (--cta-hover; the arrow is white unless --cta-arrow is set to none);
+   negative margins keep the 32px circle from changing the pill's 40px height */
+.cta__icon {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  margin: -6px -6px -6px 0;
+  border-radius: 50%;
+  background: transparent;
+  transition: background-color 0.35s var(--ease);
+}
+.cta img { width: 21.714px; height: 20px; transition: filter 0.35s var(--ease); }
+/* hover: the pill fades away and the arrow sits in a coloured circle */
+.cta:hover { background-color: transparent; }
+.cta:hover .cta__icon { background: var(--cta-hover, var(--orange)); }
+.cta:hover img { filter: var(--cta-arrow, brightness(0) invert(1)); }
+/* hover colours per focus area (Media Hub keeps the default orange) */
+.pillar--maritime  { --cta-hover: #e9473f; }
+.pillar--inclusive { --cta-hover: #fbba16; --cta-arrow: none; }
+.pillar--coastal   { --cta-hover: #5abdeb; --cta-arrow: none; }
+.pillar--community { --cta-hover: #1bae96; }
 
 /* ---------- 01 Hero ---------- */
 
+/* Fills the viewport at any size: full width, full height (svh so mobile
+   browser bars don't push it past the fold). The min-height only stops the
+   content overlapping on very short landscape windows. */
 .hero {
+  width: 100%;
   height: 100vh;
   height: 100svh;
-  min-height: 620px;
-  max-height: 1200px;
+  min-height: 480px;
   padding: var(--inset);
 }
 .hero__card {
@@ -153,8 +215,6 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 }
 .hero__inner {
   height: 100%;
-  max-width: calc(var(--container) - 2 * var(--inset));
-  margin-inline: auto;
   padding: 41px calc(var(--gutter) - var(--inset));
   display: flex;
   flex-direction: column;
@@ -186,7 +246,8 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 }
 .hero__title {
   margin-top: 40px;
-  font-size: clamp(48px, 6.95vw, 100px);
+  /* scales with width, and also with height so short wide windows don't crowd */
+  font-size: clamp(44px, min(6.95vw, 11vh), 100px);
   line-height: 1;
   font-weight: 400;
 }
@@ -206,7 +267,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 
 /* ---------- 02 About ---------- */
 
-.about { padding-block: 110px 150px; }
+.about { padding-block: 110px max(320px, 90vh); }
 .about__title { text-align: center; }
 .about__cards {
   display: grid;
@@ -221,13 +282,19 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .about__text p { padding-top: 1.896px; }
 .about__lead {
   max-width: 1010px;
-  margin: 150px auto 0;
+  margin: max(240px, 45vh) auto 0;
   text-align: center;
   font-size: clamp(24px, 2.64vw, 38px);
   line-height: 1.19;
   color: var(--black);
 }
 .about__lead strong { font-weight: 500; }
+/* opacity and lift are driven by scroll in script.js (--lead-o, --lead-y) */
+.js .about__lead {
+  opacity: var(--lead-o, 1);
+  transform: translateY(var(--lead-y, 0px));
+  will-change: opacity, transform;
+}
 .js .about__lead .w { color: var(--muted); transition: color 0.35s linear; }
 .js .about__lead .w.is-lit { color: var(--black); }
 
@@ -270,6 +337,19 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .pillar--coastal .pillar__body { max-width: 266px; }
 .pillar--community .pillar__body { max-width: 335px; }
 
+/* Desktop and tablet: the photo (focus areas and FAQ) fills the slide's full height and runs to the
+   left edge, keeping the hero card's 10px white inset on top, bottom and left */
+@media (min-width: 801px) {
+  .split:is(.pillar, .faq) { padding-block: var(--inset); }
+  :is(.pillar, .faq) .split__grid { flex: 1; max-width: none; align-items: stretch; }
+  :is(.pillar, .faq) .split__media {
+    aspect-ratio: auto;
+    min-height: calc(var(--slide-l, 100vh) - 2 * var(--inset));
+    border-radius: 25px;
+  }
+  :is(.pillar, .faq) .split__content { align-self: center; }
+}
+
 /* ---------- 07 Media assets ---------- */
 
 .media { padding-block: 40px; }
@@ -279,6 +359,11 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   margin-inline: auto;
   aspect-ratio: 1024 / 768;
   max-height: 1080px;
+}
+/* desktop and tablet: always taller than one screen, so the section scrolls
+   and the tiles drift against the copy in the middle */
+@media (min-width: 801px) {
+  .media__stage { min-height: 125vh; }
 }
 .media__img {
   position: absolute;
@@ -362,8 +447,8 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 }
 .amb__arrow img { width: 21.714px; height: 20px; transition: filter 0.3s var(--ease); }
 .amb__arrow--prev img { transform: rotate(180deg); }
-.amb__arrow:hover:not(:disabled) { background: var(--black); }
-.amb__arrow:hover:not(:disabled) img { filter: invert(1); }
+.amb__arrow:hover:not(:disabled) { background: var(--orange); }
+.amb__arrow:hover:not(:disabled) img { filter: brightness(0) invert(1); }
 .amb__arrow:disabled { opacity: 0.35; cursor: default; }
 .amb__dots { display: flex; align-items: center; gap: 5px; }
 .amb__dot { width: 27px; height: 15px; display: grid; place-items: center; }
@@ -506,17 +591,23 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 }
 .js [data-reveal].is-in { opacity: 1; transform: none; }
 
-/* image wipe: the picture un-clips from the bottom while it settles.
-   (The clip sits on the <img>, not the frame, so the frame stays observable.) */
-.js [data-reveal="image"] { opacity: 1; transform: none; background: transparent; transition: background-color 0.01s linear 1.3s; }
-.js [data-reveal="image"].is-in { background: var(--grey); }
+/* Ken Burns: the photo is always visible in its frame; when it comes into view
+   it slowly settles from a slight zoom while drifting a little toward its
+   focal point (--kb-origin). No wipe, so it doesn't compete with the slide change. */
+.js [data-reveal="image"] { opacity: 1; transform: none; }
 .js [data-reveal="image"] img {
-  clip-path: inset(100% 0 0 0);
-  scale: 1.18;
-  transition: clip-path 1.2s var(--ease), scale 1.6s var(--ease);
+  scale: 1.14;
+  translate: var(--kb-x, -1.5%) var(--kb-y, 1%);
+  transform-origin: var(--kb-origin, 50% 50%);
+  transition: scale 9s cubic-bezier(0.22, 0.6, 0.3, 1), translate 9s cubic-bezier(0.22, 0.6, 0.3, 1);
   transition-delay: var(--d, 0s);
+  will-change: scale, translate;
 }
-.js [data-reveal="image"].is-in img { clip-path: inset(0 0 0 0); scale: 1; }
+.js [data-reveal="image"].is-in img { scale: 1.02; translate: 0 0; }
+.pillar--maritime  { --kb-origin: 35% 45%; --kb-x: -1.5%; --kb-y: 1%; }
+.pillar--inclusive { --kb-origin: 60% 40%; --kb-x: 1.5%;  --kb-y: 1%; }
+.pillar--coastal   { --kb-origin: 40% 60%; --kb-x: -1%;   --kb-y: -1.5%; }
+.pillar--community { --kb-origin: 55% 50%; --kb-x: 1.5%;  --kb-y: -1%; }
 
 /* scale-in for the scattered media images (translate is left to the parallax) */
 .js [data-reveal="pop"] {
@@ -553,9 +644,9 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   :root { --gutter: 24px; --radius: 18px; }
   .num { display: none; }
   .hero__intro { align-self: flex-start; }
-  .about { padding-block: 72px 96px; }
+  .about { padding-block: 72px max(160px, 45vh); }
   .about__cards { grid-template-columns: 1fr; gap: 40px; margin-top: 40px; }
-  .about__lead { margin-top: 96px; }
+  .about__lead { margin-top: max(160px, 35vh); }
   .split { padding-block: 32px; }
   .split__grid { grid-template-columns: 1fr; gap: 32px; }
   .split__content { padding: 0 calc(var(--gutter) - var(--inset)) 16px; }
@@ -606,6 +697,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition-duration: 0.01ms !important; transition-delay: 0s !important; }
   .js [data-reveal], .js [data-reveal="pop"] { opacity: 1; transform: none; scale: 1; clip-path: none; }
-  .js [data-reveal="image"] img { clip-path: none; scale: 1; }
+  .js [data-reveal="image"] img { scale: 1; translate: none; }
   .js .about__lead .w { color: var(--black); }
+  .js .about__lead { opacity: 1; transform: none; }
 }

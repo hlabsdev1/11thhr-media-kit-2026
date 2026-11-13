@@ -44,7 +44,48 @@
     }
   })();
 
+  /* ---------- Slide change (02 About → 11 Contacts) ---------- */
+  // Each section from About on is a "slide". While one scrolls off the top, the
+  // next is held in place underneath it and uncovered. The holding is pure CSS
+  // (sticky inside .slide-wrap, see .has-slides); update() below only sets the
+  // darkening and shadow.
+
+  var slides = [];
+  if (!reduceMotion) {
+    var sections = $$("main > section");
+    var firstSlide = sections.indexOf($("#about"));
+    if (firstSlide > -1) {
+      slides = sections.slice(firstSlide).map(function (el, i, list) {
+        el.classList.add("slide");
+        el.style.zIndex = String(list.length - i + 1); // earlier slides sit on top
+        var wrap = null;
+        if (i > 0) {
+          wrap = document.createElement("div");
+          wrap.className = "slide-wrap";
+          el.parentNode.insertBefore(wrap, el);
+          wrap.appendChild(el);
+        }
+        return { el: el, wrap: wrap, progress: i === 0 ? 1 : 0 }; // progress: 1 = fully uncovered
+      });
+      root.classList.add("has-slides");
+    }
+  }
+  function slideProgress(el) {
+    var s = el.closest(".slide");
+    for (var i = 0; i < slides.length; i++) if (slides[i].el === s) return slides[i].progress;
+    return 1;
+  }
+
   /* ---------- Reveal on scroll ---------- */
+
+  // Elements in a slide that is still covered wait until it is half uncovered,
+  // so their entrance animation isn't spent while hidden under the previous slide.
+  var revealPending = [];
+  var revealIO = null;
+  function revealNow(el) {
+    el.classList.add("is-in");
+    if (revealIO) revealIO.unobserve(el);
+  }
 
   (function reveals() {
     var items = $$("[data-reveal]");
@@ -52,14 +93,15 @@
       items.forEach(function (el) { el.classList.add("is-in"); });
       return;
     }
-    var io = new IntersectionObserver(function (entries) {
+    revealIO = new IntersectionObserver(function (entries) {
       entries.forEach(function (e) {
-        if (!e.isIntersecting) return;
-        e.target.classList.add("is-in");
-        io.unobserve(e.target);
+        var i = revealPending.indexOf(e.target);
+        if (!e.isIntersecting) { if (i > -1) revealPending.splice(i, 1); return; }
+        if (slideProgress(e.target) >= 0.5) revealNow(e.target);
+        else if (i === -1) revealPending.push(e.target);
       });
     }, { threshold: 0.12, rootMargin: "0px 0px -6% 0px" });
-    items.forEach(function (el) { io.observe(el); });
+    items.forEach(function (el) { revealIO.observe(el); });
   })();
 
   /* ---------- Scroll-driven work (text reveal + parallax) ---------- */
@@ -86,7 +128,7 @@
         }
       });
     })(el);
-    return { el: el, words: words, lit: -1 };
+    return { el: el, words: words, lit: -1, section: el.closest("section") };
   });
 
   var parallaxEls = $$("[data-parallax]").map(function (el) {
@@ -105,12 +147,46 @@
     var vh = window.innerHeight;
     var wide = window.innerWidth > 800;
 
-    // text reveal: words light up as the block travels from 85% to 35% of the viewport
+    // slide change: a slide is held (sticky) while its wrapper's top travels from
+    // 0 to -L, where L is the hold distance (the wrapper's spacer below the slide).
+    if (slides.length) {
+      var reads = slides.map(function (x) {
+        if (!x.wrap) return null;
+        return { top: x.wrap.getBoundingClientRect().top, L: (x.wrap.offsetHeight - x.el.offsetHeight) || vh };
+      });
+      slides.forEach(function (x, i) {
+        if (i === 0) return;
+        var covered = clamp(1 + reads[i].top / reads[i].L, 0, 1); // 1 = fully covered, 0 = fully uncovered
+        x.progress = 1 - covered;
+        x.el.style.setProperty("--slide-in", covered.toFixed(3));
+        slides[i - 1].el.style.setProperty("--slide-out", Math.min(1, covered * 3).toFixed(3));
+      });
+      for (var k = revealPending.length - 1; k >= 0; k--) {
+        if (slideProgress(revealPending[k]) >= 0.5) revealNow(revealPending.splice(k, 1)[0]);
+      }
+    }
+
     leads.forEach(function (lead) {
       var r = lead.el.getBoundingClientRect();
+      var mid = r.top + r.height / 2;
+
+      // fade in as the block rises from the bottom edge to 70% of the viewport;
+      // fade out as the bottom of its section approaches the bottom edge, so the
+      // copy is gone just before the next slide starts to be uncovered
+      if (!reduceMotion) {
+        var fadeIn = clamp((vh - r.top) / (vh * 0.3), 0, 1);
+        var sectionBottom = lead.section ? lead.section.getBoundingClientRect().bottom : Infinity;
+        var fadeOut = clamp((sectionBottom - vh) / (vh * 0.3), 0, 1);
+        var o = Math.min(fadeIn, fadeOut);
+        var y = (1 - fadeIn) * 40 - (1 - fadeOut) * 40;
+        lead.el.style.setProperty("--lead-o", o.toFixed(3));
+        lead.el.style.setProperty("--lead-y", y.toFixed(1) + "px");
+      }
+
+      // text reveal: words light up as the block's centre travels from 85% to 55% of the viewport
       var start = vh * 0.85;
-      var end = vh * 0.35;
-      var p = reduceMotion ? 1 : clamp((start - r.top) / (start - end + r.height), 0, 1);
+      var end = vh * 0.55;
+      var p = reduceMotion ? 1 : clamp((start - mid) / (start - end), 0, 1);
       var lit = Math.round(p * lead.words.length);
       if (lit === lead.lit) return;
       lead.lit = lit;
@@ -132,6 +208,7 @@
 
   window.addEventListener("scroll", onScroll, { passive: true });
   window.addEventListener("resize", onScroll);
+  window.addEventListener("load", onScroll); // section heights settle once fonts and images are in
   update();
 
   /* ---------- FAQ accordion ---------- */
