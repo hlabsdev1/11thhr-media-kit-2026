@@ -108,7 +108,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 }
 /* in a flex column, auto side margins would shrink a block to its content;
    keep every slide's content full width as in normal flow */
-.has-slides .slide > :not(.num) { width: 100%; }
+.has-slides .slide > * { width: 100%; }
 .has-slides .slide-wrap { margin-top: calc(-1 * var(--slide-l)); }
 /* room for the sticky slide to be held in (padding wouldn't count: sticky
    only moves within its parent's content box) */
@@ -135,14 +135,6 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .p-s { font-size: 11px; line-height: 17px; letter-spacing: 0.22px; }
 .caption { font-size: 10px; line-height: 12px; font-weight: 500; }
 
-.num {
-  position: absolute;
-  top: 24px;
-  right: 24px;
-  z-index: 2;
-  color: #000;
-}
-.num--white { color: var(--white); }
 
 /* Pill button */
 .cta {
@@ -697,7 +689,6 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 
 @media (max-width: 800px) {
   :root { --gutter: 24px; --radius: 18px; }
-  .num { display: none; }
   .hero__intro { align-self: flex-start; }
   .about { padding-top: 72px; }
   .about__cards { grid-template-columns: 1fr; gap: 40px; margin-top: 40px; }
