@@ -769,7 +769,12 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   .amb__slider { --per: 2; --gap: 20px; margin-top: 40px; }
   .amb__controls { margin-top: 40px; }
   .partners__card { padding-top: 48px; }
-  .partners__panel { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 32px; }
+  /* Portrait tablets and large phones: masonry-style 2 columns. Each card drops
+     into the next free space in its column, so a short card isn't followed
+     by a gap while a taller card beside it finishes. */
+  .partners__panel { display: block; column-count: 2; column-gap: 17px; margin-top: 32px; padding-bottom: 8px; }
+  .partners__col { break-inside: avoid; margin-bottom: 32px; }
+  .partners__col h3 { min-height: 0; } /* headings fit on one line here; no reserved second line */
 }
 
 @media (max-width: 520px) {
@@ -777,7 +782,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   .amb__slider { --per: 1; }
   .amb__dot { width: 6px; }
   .amb__dots { gap: 4px; }
-  .partners__panel { grid-template-columns: 1fr; }
+  .partners__panel { column-count: 1; }
   .partners__col h3 { min-height: 0; }
 }
 
