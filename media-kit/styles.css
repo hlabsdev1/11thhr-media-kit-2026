@@ -692,7 +692,22 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   .split__content { padding: 0 calc(var(--gutter) - var(--inset)) 16px; }
   .faq__body { max-width: none; }
 
-  .media { padding-block: 80px; }
+  /* Taller than one screen, so it keeps scrolling after it has been revealed */
+  .media { padding-block: 22vh 18vh; }
+  /* Rise in from below while the slide is uncovered: --slide-in goes from 1
+     (covered) to 0 (uncovered), set by script.js. The copy and each tile start
+     lower by a different amount (--rise, in vh), so they settle at slightly
+     different speeds, like the desktop parallax. Tiles above the copy rise
+     less than it and tiles below rise more, so nothing runs into the text. */
+  .media__content { transform: translate3d(0, calc(var(--slide-in, 0) * 16vh), 0); will-change: transform; }
+  .media__img { --py: calc(var(--slide-in, 0) * var(--rise, 20) * 1vh); }
+  .media__img--waterfront { --rise: 6; }
+  .media__img--sailor     { --rise: 12; }
+  .media__img--yacht      { --rise: 9; }
+  .media__img--ocean      { --rise: 16; } /* moves with the copy so it never drifts over the text */
+  .media__img--outdoors   { --rise: 22; }
+  .media__img--racing     { --rise: 32; }
+  .media__img--mountains  { --rise: 26; }
   /* Phones and portrait tablets: the copy sits in the middle and the tiles are
      scattered above and below it like on desktop (mixed sizes and shapes,
      loose offsets, two bleeding off the edges and tucked in beside the title
@@ -708,7 +723,6 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
     position: relative;
     left: auto;
     top: auto;
-    transform: none;
     width: auto;
     max-width: 480px; /* on tablets, leaves room beside the copy for the edge tiles */
     margin-inline: auto;
