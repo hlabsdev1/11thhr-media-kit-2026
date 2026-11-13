@@ -481,14 +481,28 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 
 /* ---------- 09 Partners ---------- */
 
-.partners { padding-block: 60px; }
+/* Like the hero: the photo card fills the screen on every device, with the
+   same 10px white inset on all four sides; the title and list sit centred in
+   it (capped at the container width on very wide screens). If the list is
+   taller than the screen, the card grows to fit. */
+.partners { padding-block: var(--inset); }
+.partners > .bleed { max-width: none; }
 .partners__card {
   position: relative;
-  border-radius: var(--radius);
+  min-height: calc(var(--slide-l, 100vh) - 2 * var(--inset));
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border-radius: 25px;
   overflow: hidden;
   isolation: isolate;
   color: var(--white);
   padding: 63px calc(var(--gutter) - var(--inset)) 40px;
+}
+.partners__title, .partners__panel {
+  width: 100%;
+  max-width: calc(var(--container) - 2 * var(--gutter));
+  margin-inline: auto;
 }
 .partners__bg { position: absolute; inset: 0; z-index: -2; border-radius: 0; background: #1d2632; }
 .partners__card::after { content: ""; position: absolute; inset: 0; background: rgba(0, 0, 0, 0.4); z-index: -1; }
@@ -699,7 +713,6 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   .amb__head { flex-direction: column; align-items: flex-start; gap: 20px; }
   .amb__slider { --per: 2; --gap: 20px; margin-top: 40px; }
   .amb__controls { margin-top: 40px; }
-  .partners { padding-block: 32px; }
   .partners__card { padding-top: 48px; }
   .partners__panel { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 32px; }
 }
