@@ -341,10 +341,9 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .split__content { padding-left: 72px; padding-right: calc(var(--gutter) - var(--inset)); }
 .pillar__body { display: flex; flex-direction: column; align-items: flex-start; gap: 30px; }
 .pillar__text { display: flex; flex-direction: column; gap: 10px; }
-.pillar--maritime .pillar__body { max-width: 284px; }
-.pillar--inclusive .pillar__body { max-width: 315px; }
-.pillar--coastal .pillar__body { max-width: 266px; }
-.pillar--community .pillar__body { max-width: 335px; }
+/* text uses the column's width (no fixed per-section widths forcing line
+   breaks); the cap only keeps lines readable on very wide screens */
+.pillar__body { max-width: 560px; }
 
 /* Desktop and tablet: the photo (focus areas and FAQ) fills the slide's full height and runs to the
    left edge, keeping the hero card's 10px white inset on top, bottom and left */
