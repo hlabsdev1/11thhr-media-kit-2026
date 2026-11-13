@@ -261,6 +261,19 @@
   window.addEventListener("load", onScroll); // section heights settle once fonts and images are in
   update();
 
+  /* ---------- Buttons: arrow leaves to the right when the pointer leaves ---------- */
+  // .cta--out plays the exit animation (see .cta in CSS) so the arrows keep
+  // travelling left to right instead of reversing.
+  $$(".cta").forEach(function (cta) {
+    var timer = null;
+    cta.addEventListener("mouseenter", function () { clearTimeout(timer); cta.classList.remove("cta--out"); });
+    cta.addEventListener("mouseleave", function () {
+      cta.classList.add("cta--out");
+      clearTimeout(timer);
+      timer = setTimeout(function () { cta.classList.remove("cta--out"); }, 500);
+    });
+  });
+
   /* ---------- Media Assets: tiles keep their distance from the pointer ---------- */
   // Each tile near the cursor (or a finger touching the screen) is pushed gently
   // away from it, more the closer it is, and eases back when the pointer leaves.

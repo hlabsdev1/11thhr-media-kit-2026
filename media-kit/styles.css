@@ -152,20 +152,48 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
    (--cta-hover; the arrow is white unless --cta-arrow is set to none);
    negative margins keep the 32px circle from changing the pill's 40px height */
 .cta__icon {
+  position: relative;
   display: grid;
   place-items: center;
   width: 32px;
   height: 32px;
   margin: -6px -6px -6px 0;
   border-radius: 50%;
+  overflow: hidden; /* the arrows slide in and out of the circle */
   background: transparent;
   transition: background-color 0.35s var(--ease);
 }
-.cta img { width: 21.714px; height: 20px; transition: filter 0.35s var(--ease); }
-/* hover: the pill fades away and the arrow sits in a coloured circle */
+.cta img { width: 21.714px; height: 20px; }
+/* second arrow (the hover one): same icon, white unless --cta-arrow says
+   otherwise; waits out of sight to the left of the circle */
+.cta__icon::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url("assets/img/arrow.svg") center / 21.714px 20px no-repeat;
+  filter: var(--cta-arrow, brightness(0) invert(1));
+  transform: translateX(-110%);
+  opacity: 0;
+}
+/* hover: the pill fades away, the circle fills with the section colour, the
+   dark arrow slides out to the right and the hover arrow slides in from the
+   left. On leaving (.cta--out, set by script.js) it runs the other way round,
+   still left to right: the hover arrow exits right, the dark one enters from
+   the left. */
 .cta:hover { background-color: transparent; }
 .cta:hover .cta__icon { background: var(--cta-hover, var(--orange)); }
-.cta:hover img { filter: var(--cta-arrow, brightness(0) invert(1)); }
+.cta:hover img                    { animation: cta-arrow-out 0.3s var(--ease) both; }
+.cta:hover .cta__icon::before     { animation: cta-arrow-in 0.35s var(--ease) 0.08s both; }
+.cta.cta--out img                 { animation: cta-arrow-in 0.35s var(--ease) 0.05s both; }
+.cta.cta--out .cta__icon::before  { animation: cta-arrow-out 0.3s var(--ease) both; }
+@keyframes cta-arrow-out {
+  from { transform: translateX(0); opacity: 1; }
+  to   { transform: translateX(110%); opacity: 0; }
+}
+@keyframes cta-arrow-in {
+  from { transform: translateX(-110%); opacity: 0; }
+  to   { transform: translateX(0); opacity: 1; }
+}
 /* hover colours per focus area (Media Hub keeps the default orange) */
 .pillar--maritime  { --cta-hover: #e9473f; }
 .pillar--inclusive { --cta-hover: #fbba16; --cta-arrow: none; }
@@ -796,4 +824,8 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   .js [data-reveal], .js [data-reveal="pop"] { opacity: 1; transform: none; scale: 1; clip-path: none; }
   .js [data-kb] img { scale: 1; translate: none; }
   .js .about__lead .w { opacity: 1 !important; transform: none !important; }
+  /* buttons: swap the arrows instantly instead of sliding */
+  .cta img, .cta__icon::before { animation: none !important; }
+  .cta:hover img { opacity: 0; }
+  .cta:hover .cta__icon::before { transform: none; opacity: 1; }
 }
