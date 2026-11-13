@@ -420,7 +420,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .ambassadors { padding-block: 120px 110px; }
 .amb__head { display: flex; align-items: center; justify-content: space-between; gap: 40px; }
 .amb__lead {
-  width: 449px;
+  width: 50vw; /* half the screen width on desktop; never wider than its row */
   max-width: 100%;
   font-family: var(--display);
   font-size: 24px;
@@ -711,6 +711,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 
   .ambassadors { padding-block: 72px; }
   .amb__head { flex-direction: column; align-items: flex-start; gap: 20px; }
+  .amb__lead { width: auto; }
   .amb__slider { --per: 2; --gap: 20px; margin-top: 40px; }
   .amb__controls { margin-top: 40px; }
   .partners__card { padding-top: 48px; }
