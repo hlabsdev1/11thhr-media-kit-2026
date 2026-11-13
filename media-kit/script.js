@@ -82,9 +82,19 @@
   // so their entrance animation isn't spent while hidden under the previous slide.
   var revealPending = [];
   var revealIO = null;
+  function isPhoto(el) { return el.getAttribute("data-reveal") === "image"; }
   function revealNow(el) {
     el.classList.add("is-in");
-    if (revealIO) revealIO.unobserve(el);
+    // photos stay observed so their Ken Burns zoom can replay on every visit
+    if (revealIO && !isPhoto(el)) revealIO.unobserve(el);
+  }
+  // put a photo back to its zoomed-in start, instantly, once it is fully out of view
+  function resetPhoto(el) {
+    if (!el.classList.contains("is-in")) return;
+    var img = el.querySelector("img");
+    if (img) img.style.transition = "none";
+    el.classList.remove("is-in");
+    if (img) { void img.offsetWidth; img.style.transition = ""; }
   }
 
   (function reveals() {
@@ -102,6 +112,13 @@
       });
     }, { threshold: 0.12, rootMargin: "0px 0px -6% 0px" });
     items.forEach(function (el) { revealIO.observe(el); });
+
+    // Ken Burns replay: when a photo has left the screen completely, reset it,
+    // so the zoom plays again next time it scrolls into view
+    var leaveIO = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { if (!e.isIntersecting) resetPhoto(e.target); });
+    }, { threshold: 0 });
+    items.filter(isPhoto).forEach(function (el) { leaveIO.observe(el); });
   })();
 
   /* ---------- Scroll-driven work (text reveal + parallax) ---------- */
